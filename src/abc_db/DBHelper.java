@@ -99,7 +99,7 @@ public class DBHelper {
 
         try {
 
-            String sql = "INSERT INTO users(name, author) VALUES(?, ?);";
+            String sql = "INSERT INTO books(name, author) VALUES(?, ?);";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, book.getName());

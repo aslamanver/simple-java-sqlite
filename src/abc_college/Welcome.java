@@ -8,6 +8,10 @@ package abc_college;
 import abc_db.Book;
 import abc_db.DBHelper;
 import abc_db.User;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,17 +29,58 @@ public class Welcome extends javax.swing.JFrame {
         cUser = user;
 
         initComponents();
+        setTableList();
 
-        String data[][]
-                = {{"101", "Amit"},
-                {"102", "Jai"},
-                {"101", "Sachin"}};
+    }
 
-        String[] columnNames = {"ID", "Book Name"};
+    public void setTableList() {
 
-        jModel = new DefaultTableModel(data, columnNames);
-        jTable = new JTable(jModel);
+        String[] columnNames = {"ID", "Book Name", "Author"};
+        String data[][] = {};
+        jModel = new DefaultTableModel(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
+        DBHelper db = new DBHelper();
+        db.connect();
+
+        for (Book book : db.getBooks()) {
+
+            Object[] objs = {book.getId(), book.getName(), book.getAuthor()};
+            jModel.addRow(objs);
+        }
+
+        jTable.setModel(jModel);
+
+        jTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    JTable target = (JTable) e.getSource();
+                    int row = target.getSelectedRow();
+                    int column = target.getSelectedColumn();
+
+                    Book book = new Book();
+                    book.setId(Integer.valueOf(jModel.getValueAt(row, 0).toString()));
+                    book.setName(jModel.getValueAt(row, 1).toString());
+                    book.setAuthor(jModel.getValueAt(row, 2).toString());
+
+                    String newName = JOptionPane.showInputDialog(null, "Book Name", book.getName());
+                    String newAuthor = JOptionPane.showInputDialog(null, "Author", book.getAuthor());
+
+                    book.setName(newName);
+                    book.setAuthor(newAuthor);
+                    
+                    DBHelper db = new DBHelper();
+                    db.connect();
+                    
+                    db.updateBook(book);
+                    setTableList();
+                }
+            }
+        });
     }
 
     /**
@@ -43,21 +88,7 @@ public class Welcome extends javax.swing.JFrame {
      */
     public Welcome() {
         initComponents();
-
-        String[] columnNames = {"ID", "Book Name", "Author"};
-        String data[][] = {};
-        jModel = new DefaultTableModel(data, columnNames);
-
-        DBHelper db = new DBHelper();
-        db.connect();
-
-        for (Book book : db.getBooks()) {
-            
-            Object[] objs = {book.getId(), book.getName(), book.getAuthor()};
-            jModel.addRow(objs);
-        }
-
-        jTable.setModel(jModel);
+        setTableList();
     }
 
     /**
@@ -75,6 +106,7 @@ public class Welcome extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         btnAddBook = new javax.swing.JButton();
+        btnDeleteBook = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -105,13 +137,32 @@ public class Welcome extends javax.swing.JFrame {
             new String [] {
                 "ID", "Name"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable);
+        if (jTable.getColumnModel().getColumnCount() > 0) {
+            jTable.getColumnModel().getColumn(0).setResizable(false);
+            jTable.getColumnModel().getColumn(1).setResizable(false);
+        }
 
         btnAddBook.setText("Add Book");
         btnAddBook.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddBookActionPerformed(evt);
+            }
+        });
+
+        btnDeleteBook.setText("Delete Book");
+        btnDeleteBook.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteBookActionPerformed(evt);
             }
         });
 
@@ -124,6 +175,8 @@ public class Welcome extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnAddBook)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDeleteBook)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -145,7 +198,9 @@ public class Welcome extends javax.swing.JFrame {
                     .addComponent(btnLogout)
                     .addComponent(btnDelete))
                 .addGap(4, 4, 4)
-                .addComponent(btnAddBook)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAddBook)
+                    .addComponent(btnDeleteBook))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(19, Short.MAX_VALUE))
@@ -172,8 +227,30 @@ public class Welcome extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnAddBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddBookActionPerformed
-        // TODO add your handling code here:
+
+        String name = JOptionPane.showInputDialog(null, "Book Name");
+        String author = JOptionPane.showInputDialog(null, "Author");
+
+        DBHelper db = new DBHelper();
+        db.connect();
+
+        Book book = new Book();
+        book.setName(name);
+        book.setAuthor(author);
+
+        if (book.getName() == null && book.getAuthor() == null) {
+            JOptionPane.showMessageDialog(null, "Name and Author required !");
+        }
+
+        db.newBook(book);
+        setTableList();
+
+        JOptionPane.showMessageDialog(null, "Successfully added " + book.getName());
     }//GEN-LAST:event_btnAddBookActionPerformed
+
+    private void btnDeleteBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteBookActionPerformed
+        
+    }//GEN-LAST:event_btnDeleteBookActionPerformed
 
     /**
      * @param args the command line arguments
@@ -213,6 +290,7 @@ public class Welcome extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddBook;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnDeleteBook;
     private javax.swing.JButton btnLogout;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
