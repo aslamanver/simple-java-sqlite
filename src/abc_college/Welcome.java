@@ -67,16 +67,28 @@ public class Welcome extends javax.swing.JFrame {
                     book.setName(jModel.getValueAt(row, 1).toString());
                     book.setAuthor(jModel.getValueAt(row, 2).toString());
 
-                    String newName = JOptionPane.showInputDialog(null, "Book Name", book.getName());
-                    String newAuthor = JOptionPane.showInputDialog(null, "Author", book.getAuthor());
+                    int reply = JOptionPane.showConfirmDialog(null, "Do you want to delete ?", book.getName(), JOptionPane.YES_NO_OPTION);
 
-                    book.setName(newName);
-                    book.setAuthor(newAuthor);
-                    
-                    DBHelper db = new DBHelper();
-                    db.connect();
-                    
-                    db.updateBook(book);
+                    if (reply == JOptionPane.YES_OPTION) {
+                        
+                        DBHelper db = new DBHelper();
+                        db.connect();
+                        db.deleteBook(book);
+                        
+                    } else {
+                        
+                        String newName = JOptionPane.showInputDialog(null, "Book Name", book.getName());
+                        String newAuthor = JOptionPane.showInputDialog(null, "Author", book.getAuthor());
+
+                        book.setName(newName);
+                        book.setAuthor(newAuthor);
+
+                        DBHelper db = new DBHelper();
+                        db.connect();
+
+                        db.updateBook(book);
+                    }
+
                     setTableList();
                 }
             }
@@ -249,7 +261,7 @@ public class Welcome extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddBookActionPerformed
 
     private void btnDeleteBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteBookActionPerformed
-        
+
     }//GEN-LAST:event_btnDeleteBookActionPerformed
 
     /**
