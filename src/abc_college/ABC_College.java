@@ -21,6 +21,7 @@ public class ABC_College {
         
         Login login = new Login();
         login.setVisible(true);
+        login.setLocationRelativeTo(null); 
 
 //        DBHelper db = new DBHelper();
 //        db.connect();

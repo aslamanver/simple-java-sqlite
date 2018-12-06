@@ -229,12 +229,14 @@ public class Welcome extends javax.swing.JFrame {
 
         Login login = new Login();
         login.setVisible(true);
+        login.setLocationRelativeTo(null); 
         this.dispose();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         Login login = new Login();
         login.setVisible(true);
+        login.setLocationRelativeTo(null); 
         this.dispose();
     }//GEN-LAST:event_btnLogoutActionPerformed
 

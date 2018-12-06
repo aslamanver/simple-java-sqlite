@@ -140,6 +140,7 @@ public class Login extends javax.swing.JFrame {
             if (cUser.getPassword().equals(password)) {
                 Welcome welcome = new Welcome(cUser);
                 welcome.setVisible(true);
+                welcome.setLocationRelativeTo(null); 
                 this.dispose();
             }
 
@@ -152,6 +153,7 @@ public class Login extends javax.swing.JFrame {
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         Register register = new Register();
         register.setVisible(true);
+        register.setLocationRelativeTo(null); 
         this.dispose();
     }//GEN-LAST:event_btnRegisterActionPerformed
 

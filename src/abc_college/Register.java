@@ -131,6 +131,7 @@ public class Register extends javax.swing.JFrame {
             
             Login login = new Login();
             login.setVisible(true);
+            login.setLocationRelativeTo(null); 
         }
 
     }//GEN-LAST:event_btnRegisterActionPerformed
